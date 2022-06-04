@@ -7,8 +7,8 @@
 (def shop-open? (atom false))
 (def barber-busy? (ref false))
 (def open-chairs (ref max-chairs))
-(def lost-customers (ref 0))
-(def haircut-count (ref 0))
+(def lost-customers (agent 0))
+(def haircut-count (agent 0))
 
 (def customer-waiting? #(< @open-chairs max-chairs))
 (def work-to-do? #(or @shop-open? (customer-waiting?)))
@@ -22,7 +22,7 @@
         (dosync
           (if (> @open-chairs 0)
             (alter open-chairs dec)
-            (alter lost-customers inc)))))))
+            (send lost-customers inc)))))))
 
 (defn give-haircut []
   (dosync
@@ -31,7 +31,7 @@
   (Thread/sleep length-of-haircut)
   (dosync
     (ref-set barber-busy? false)
-    (alter haircut-count inc)))
+    (send haircut-count inc)))
 
 (defn operate-shop []
   (future (while (work-to-do?) (if (chair-available?) (give-haircut)))))
