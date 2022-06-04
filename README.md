@@ -1,11 +1,23 @@
-* https://github.com/utahkay/clojure-banking
-* https://github.com/cordmata/seven/blob/master/clojure/src/clojure_seven/barber.clj
-* https://github.com/cordmata/clojure-koans
-* https://github.com/clojure/test.check
-* https://stackoverflow.com/questions/4999281/ref-set-vs-commute-vs-alter
-* https://stackoverflow.com/questions/48761023/clojures-commute-example-from-the-docs-produces-duplicates
+* references
+    * https://github.com/utahkay/clojure-banking
+    * https://github.com/cordmata/seven/blob/master/clojure/src/clojure_seven/barber.clj
+    * https://github.com/cordmata/clojure-koans
+    * https://github.com/clojure/test.check
+    * https://stackoverflow.com/questions/4999281/ref-set-vs-commute-vs-alter
+    * https://stackoverflow.com/questions/48761023/clojures-commute-example-from-the-docs-produces-duplicates
+    * http://makble.com/whats-the-difference-between-alter-and-commute-in-clojure-ref-type
 
-## basics
+## clojure
+* functional programming language on the JVM with great support
+  for managing state and concurrency
+* based on two fundamental tools: immutable values and pure functions
+* syntax derived from its Lisp roots
+    * Lisps have a tiny language core, almost no syntax, and a powerful macro facility
+
+## syntax
+* parentheses serve two purposes:
+    * calling functions
+    * constructing lists
 
 ## concurrency
 * identity and state as separate things
@@ -121,4 +133,35 @@
             "Elapsed time: 2224.0148 msecs"
             (2 5 6 1 10 12 8 16 13 4 3 11 9 7 14 20 15 17 19 18)
             20
+            ```
+        * example for commit order
+            ```
+            (defn tid [] (.getId (Thread/currentThread)))
+            (defn debug
+              [ msg ]
+              (print (str msg (apply str (repeat (- 35 (count msg)) \space))  " tid: " (tid)  "\n"))
+              (flush))
+
+            (def a (ref 1))
+
+            (defn do-transaction [_]
+              (dosync
+                (alter a + 1) // or commute a + 1
+                (debug (str "in transaction value: " @a))
+              )
+            )
+
+            (doseq [dummyagent (range 1 6)]
+              (send-off (agent  dummyagent) do-transaction)
+            )
+            ```
+            results
+            ```
+            in transaction value: 2             tid: 12
+            in transaction value: 3             tid: 15 // failed, will be retried
+            in transaction value: 3             tid: 14 // failed, will be retried
+            in transaction value: 3             tid: 11
+            in transaction value: 4             tid: 15 // retried and succeed
+            in transaction value: 5             tid: 13
+            in transaction value: 6             tid: 14 // retried and succeed
             ```
