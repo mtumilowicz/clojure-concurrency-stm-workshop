@@ -1,7 +1,7 @@
-(ns workshop.bank.core-atom-test
+(ns workshop.bank.core-ref-test
   (:require [clojure.test :refer :all]
             [clojure.test.check.generators :as gen]
-            [workshop.bank.core-atom :refer :all]))
+            [workshop.bank.core-ref :refer :all]))
 
 (defn transferToAndFro [account1 account2 amount]
   (do
@@ -18,4 +18,5 @@
 (deftest test-concurrent-transfers
   (let [account1 (make-account 100)
         account2 (make-account 100)]
-    (is (thrown-with-msg? Exception #"Insufficient Funds" (simulate-transfers account1 account2) ))))
+    (simulate-transfers account1 account2)
+    (is (= 200 (+ (balance account1) (balance account2))))))
