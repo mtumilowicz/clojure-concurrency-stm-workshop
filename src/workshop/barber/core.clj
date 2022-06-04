@@ -1,4 +1,4 @@
-(ns workshop.core2)
+(ns workshop.barber.core)
 
 (def max-chairs 3)
 (def time-open (* 10 1000))
@@ -45,7 +45,7 @@
 (defn monitor-progress []
   (future (while (work-to-do?) (print-progress) (Thread/sleep 100))))
 
-(defn open-shop []
+(defn simulation []
   (reset! shop-open? true)
   (generate-customers)
   (operate-shop)
@@ -54,7 +54,7 @@
   (reset! shop-open? false))
 
 (defn -main [& args]
-  (open-shop)
+  (simulation)
   (Thread/sleep 60)
   (print-progress)
   (println " Done!")

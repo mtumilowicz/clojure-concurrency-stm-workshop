@@ -1,7 +1,7 @@
-(ns workshop.core-test
+(ns workshop.bank.core-test
   (:require [clojure.test :refer :all]
             [clojure.test.check.generators :as gen]
-            [workshop.core :refer :all]))
+            [workshop.bank.core :refer :all]))
 
 (defn transferToAndFro [account1 account2 amount]
   (do

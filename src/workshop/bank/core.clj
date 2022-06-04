@@ -1,4 +1,4 @@
-(ns workshop.core)
+(ns workshop.bank.core)
 
 (defn make-account
   ([]
