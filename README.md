@@ -1,3 +1,4 @@
+# clojure-concurrency-stm-workshop
 * references
     * https://github.com/utahkay/clojure-banking
     * https://github.com/cordmata/seven/blob/master/clojure/src/clojure_seven/barber.clj
@@ -7,6 +8,23 @@
     * https://stackoverflow.com/questions/48761023/clojures-commute-example-from-the-docs-produces-duplicates
     * http://makble.com/whats-the-difference-between-alter-and-commute-in-clojure-ref-type
     * https://clojure.org/
+    * https://www.manning.com/books/clojure-in-action
+    * https://pragprog.com/titles/dswdcloj3/web-development-with-clojure-third-edition/
+    * https://pragprog.com/titles/shcloj3/programming-clojure-third-edition/
+    * https://www.manning.com/books/the-joy-of-clojure-second-edition
+    * https://pragprog.com/titles/vmclojeco/clojure-applied/
+
+## preface
+* goals of this workshop:
+    * introduction into clojure
+    * basics about clojure syntax
+    * showcase of concurrency capabilities of clojure: ref, atom & agent
+    * understanding how software transactional memory works
+    * introduction to organizing code with namespaces
+    * show how to facilitate development using REPL
+* workshops
+    * refactor core_atom and fix test
+    * implement sleeping barber solution
 
 ## clojure
 * functional programming language on the JVM with great support for managing state and concurrency
