@@ -17,7 +17,21 @@
 ## syntax
 * parentheses serve two purposes:
     * calling functions
+        * Clojure assumes that the first symbol appearing in a list represents the name of a function (or a macro)
+        * remaining expressions in the list are considered arguments to the function
     * constructing lists
+        * at the meta level, your entire Clojure program is a series of lists
+        * program is interpreted by the Clojure compiler as lists that
+        contain function names and arguments that need to be parsed, evaluated, etc
+        * this enables uniquely powerful meta-programming capabilities
+            * Clojure code is represented using Clojure data structures
+        * list is special because each expression of Clojure code is a list
+            * (def three-numbers (1 2 3))
+                * CompilerException java.lang.ClassCastException: java.lang.Long cannot be cast to clojure.lang.IFn
+                * Clojure is trying to treat the list (1 2 3) the same way as it treats all lists
+                    * first element: a function and 1 is not a function
+            * (def three-numbers '(1 2 3)) // quoting
+
 * defining function: `(defn addition-function [x y] (+ x y))`
     * optional arguments: `(defn fn-with-opts [f1 f2 & opts] ,,, )`
         * similar to varargs in java
@@ -48,27 +62,101 @@
     ```
     (throw (Exception. "this is an error!"))
     ```
-* namespaces
-    * namespaces provide a means to organize our code and the names we use in our code
-    * is both a name context and a container for vars
-        * vars are associations between a name (a symbol) and a value
-        * vars are created using def and other special forms or macros that start with def, like defn
-        * all vars are globally accessible via their fully-qualified name
-    * convention: namespace names are typically lower-case and use - to separate words
-    * Clojure runtime tracks the current namespace in the var clojure.core/*ns*
-* repl
-    * current namespace: `*ns*`
-    * switch to existing namespace: `in-ns`
-        * example: `(in-ns 'workshop.barber.core)`
-    * if the namespace is not used in the main class of the project (directly or indirectly), it won't
-    be accessible without first requiring it
+* nil
+    * nil has the same value as Java null
+    * everything other than false and nil is considered true
+* loop / recur
+    * Clojure doesn’t have traditional for loops
+    * example
         ```
-        (require '[workshop.barber.core :as barber])
-
-        barber/max-chairs
-
-        (in-ns 'workshop.barber.core)
+        (defn fact-loop [n]
+            (loop [current n fact 1] // exactly as let
+            (if (= current 1)
+                fact
+                (recur (dec current) (* fact current)))))
         ```
+    * loop works like let: establishing bindings and then evaluating exprs
+        * loop sets a recursion point, which can then be targeted by the recur
+    * recur binds new values for loop ’s bindings and returns control to the top of the loop
+    * instead of using a loop, you can recur back to the top of a function
+        ```
+        (defn countdown [result x]
+            (if (zero? x)
+                result
+                (recur (conj result x) (dec x))))
+        ```
+    * list comprehension
+        ```
+        (for [x [0 1 2 3 4 5]
+              :let [triple (* x 3)] // map -> 0 3 6 9 12 15
+              :let [double (* triple 2)] // map -> 0 6 12 18 24 30
+              :when (even? double)] // filter - only even
+          double)
+        ```
+    * and a lot of standard methods: map, filter, reduce
+* useful higher order functions
+    * (apply + list-of-expenses)
+        ```
+        (max [1 2 3]) // returns [1 2 3]
+
+        (apply max [1 2 3]) // 3, same as (max 1 2 3)
+        ```
+    * partial
+    * (some #{:oz} units)
+
+## collections
+* simplest way to model data is to use Map
+    * in Clojure: change is always modeled as the application of a pure function to an immutable value,
+    resulting in a new immutable value
+    * (assoc {} :name "Michal" :age 30) // adds
+    * (dissoc {:a 1 :b 2 :c 3} :b) // removes
+    * (update person :age inc) // modifies
+    * get from map
+        * (get earth :name)
+        * (earth :name) ;; (2) invoking the map
+        * (:name earth) ;; (3) invoking the keyword key
+            * preferred method
+    * working with nested maps
+        * (assoc-in users [:kyle :summary :average :monthly] 3000) // new entry
+            * if any nested map doesn’t exist along the way, it gets created and correctly associated
+        * (get-in users [:kyle :summary :average :monthly])
+        * (update-in users [:kyle :summary :average :monthly] + 500)
+* other collections
+    * list
+    * vector: [10 20 30 40 50]
+        * indexed by number
+    * set
+    * operations
+        * conj add elements at the natural insertion point
+            * lists: at the beginning
+            * vectors: at the end
+        * bulk updates
+            * call transient to get a mutable version of a collection
+            * transient collections can’t be conj and assoc
+                * equivalent set of functions that mutate the instance, all with a ! suffix
+                    * conj! , assoc!
+            * when mutation is complete, call persistent! to get back to a persistent collection
+
+## namespaces
+* namespaces provide a means to organize our code and the names we use in our code
+* is both a name context and a container for vars
+    * vars are associations between a name (a symbol) and a value
+    * vars are created using def and other special forms or macros that start with def, like defn
+    * all vars are globally accessible via their fully-qualified name
+* convention: namespace names are typically lower-case and use - to separate words
+* Clojure runtime tracks the current namespace in the var clojure.core/*ns*
+
+## repl
+* current namespace: `*ns*`
+* switch to existing namespace: `in-ns`
+    * example: `(in-ns 'workshop.barber.core)`
+* if the namespace is not used in the main class of the project (directly or indirectly), it won't
+be accessible without first requiring it
+    ```
+    (require '[workshop.barber.core :as barber])
+    barber/max-chairs
+    (in-ns 'workshop.barber.core)
+    ```
 
 ## leiningen
 * offers various project-related tasks and can:
