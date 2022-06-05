@@ -6,10 +6,10 @@
     * https://stackoverflow.com/questions/4999281/ref-set-vs-commute-vs-alter
     * https://stackoverflow.com/questions/48761023/clojures-commute-example-from-the-docs-produces-duplicates
     * http://makble.com/whats-the-difference-between-alter-and-commute-in-clojure-ref-type
+    * https://clojure.org/
 
 ## clojure
-* functional programming language on the JVM with great support
-  for managing state and concurrency
+* functional programming language on the JVM with great support for managing state and concurrency
 * based on two fundamental tools: immutable values and pure functions
 * syntax derived from its Lisp roots
     * Lisps have a tiny language core, almost no syntax, and a powerful macro facility
@@ -18,6 +18,85 @@
 * parentheses serve two purposes:
     * calling functions
     * constructing lists
+* defining function: `(defn addition-function [x y] (+ x y))`
+    * optional arguments: `(defn fn-with-opts [f1 f2 & opts] ,,, )`
+        * similar to varargs in java
+        * example
+            ```
+            (defn total-all-numbers [& numbers]
+              (apply + numbers))
+            ```
+    * overloading
+        ```
+        (defn total-cost
+            ([item-cost number-of-items] (* item-cost number-of-items))
+            ([item-cost] (total-cost item-cost 1)))
+        ```
+* let
+    * allows you to introduce locally named things
+    * binds a symbol to a value
+    * example: `(let [a 1 b 2] (+ a b))` // 3
+* exceptions
+    ```
+    (try
+        (throw
+            (ex-info "The ice cream has melted!"
+               {:causes             #{:fridge-door-open :dangerously-high-temperature}
+                :current-temperature {:value 25 :unit :celcius}}))
+    ```
+    or
+    ```
+    (throw (Exception. "this is an error!"))
+    ```
+* namespaces
+    * namespaces provide a means to organize our code and the names we use in our code
+    * is both a name context and a container for vars
+        * vars are associations between a name (a symbol) and a value
+        * vars are created using def and other special forms or macros that start with def, like defn
+        * all vars are globally accessible via their fully-qualified name
+    * convention: namespace names are typically lower-case and use - to separate words
+    * Clojure runtime tracks the current namespace in the var clojure.core/*ns*
+* repl
+    * current namespace: `*ns*`
+    * switch to existing namespace: `in-ns`
+        * example: `(in-ns 'workshop.barber.core)`
+    * if the namespace is not used in the main class of the project (directly or indirectly), it won't
+    be accessible without first requiring it
+        ```
+        (require '[workshop.barber.core :as barber])
+
+        barber/max-chairs
+
+        (in-ns 'workshop.barber.core)
+        ```
+
+## leiningen
+* offers various project-related tasks and can:
+    * create new projects
+    * fetch dependencies for your project
+    * run tests
+    * run a fully-configured REPL
+    * run the project
+    * compile and package projects for deployment
+    * run custom automation tasks written in Clojure (leiningen plug-ins)
+* Leiningen could be thought of as "Maven meets Ant without the pain"
+* project
+    * a directory containing a group of Clojure source files
+    * metadata about them
+        * project name
+        * project description
+        * dependencies
+        * Clojure version
+        * main namespace of the app
+* Clojure libraries are distributed the same way as in other JVM languages: as jar files
+    * Leiningen by default uses
+        * clojars.org (Clojure community's centralized Maven repository)
+        * Maven Central
+* extra arguments to the JVM: `:jvm-opts` vector
+* useful commands
+    * lein run
+    * lein test
+    * lein repl
 
 ## concurrency
 * identity and state as separate things
