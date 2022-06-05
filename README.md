@@ -31,7 +31,19 @@
                 * Clojure is trying to treat the list (1 2 3) the same way as it treats all lists
                     * first element: a function and 1 is not a function
             * (def three-numbers '(1 2 3)) // quoting
-
+* symbols and keywords
+    * symbols = identifiers in a Clojure program (names that signify values)
+        * example
+            * (+ 1 2)
+            * + is a symbol signifying the addition function
+        * analogy
+            * the word in a dictionary entry is the symbol but the definition of the word
+            is a binding of that word to a particular meaning
+    * symbols resolve to something else that isn’t a symbol
+    * keyword = never reference some other value and always evaluate to themselves
+        * often used as keys in maps and they provide faster comparisons and lower memory overhead than strings
+        (because instances are cached and reused)
+    * you can construct keywords and symbols from strings using the keyword and symbol functions
 * defining function: `(defn addition-function [x y] (+ x y))`
     * optional arguments: `(defn fn-with-opts [f1 f2 & opts] ,,, )`
         * similar to varargs in java
@@ -112,9 +124,9 @@
     * (dissoc {:a 1 :b 2 :c 3} :b) // removes
     * (update person :age inc) // modifies
     * get from map
-        * (get earth :name)
-        * (earth :name) ;; (2) invoking the map
-        * (:name earth) ;; (3) invoking the keyword key
+        * (get earth :name), (get earth :name "default name")
+        * (earth :name) // invoking the map
+        * (:name earth), (:name earth "default name")  // invoking the keyword key
             * preferred method
     * working with nested maps
         * (assoc-in users [:kyle :summary :average :monthly] 3000) // new entry
