@@ -114,7 +114,10 @@
         (apply max [1 2 3]) // 3, same as (max 1 2 3)
         ```
     * partial
-    * (some #{:oz} units)
+        ```
+        (def hundred-times (partial * 100))
+        (hundred-times 5) // 500
+        ```
 
 ## collections
 * simplest way to model data is to use Map
