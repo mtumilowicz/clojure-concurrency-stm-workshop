@@ -1,1 +1,4 @@
 language: clojure
+
+clojure:
+  - 1.11.0
