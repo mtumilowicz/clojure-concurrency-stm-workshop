@@ -127,8 +127,8 @@
           double)
         ```
     * and a lot of standard methods: map, filter, reduce
-* useful higher order functions
-    * (apply + list-of-expenses)
+* useful functions
+    * apply
         ```
         (max [1 2 3]) // returns [1 2 3]
 
@@ -138,6 +138,23 @@
         ```
         (def hundred-times (partial * 100))
         (hundred-times 5) // 500
+        ```
+    * if-let
+        ```
+        (defn save-message! [{:keys [params]}]
+            (if-let [errors (validate-message params)]
+                (println "Errors while parsing: " errors)
+                (println "Valid data: " params)))
+        ```
+    * anonymous function
+        ```
+        #(+ 6 %) // (fn [x] (+ 6 x))
+        #(+ %1 %2) // (fn [x y] (+ x y))
+        #(println %1 %2 %&) // (fn [x y & zs] (println x y zs))
+        ```
+    * constantly
+        ```
+        (constantly 5) // returns a function that takes any number of arguments and returns 5
         ```
 
 ## collections
