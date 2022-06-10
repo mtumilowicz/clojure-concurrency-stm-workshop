@@ -16,11 +16,15 @@
     * https://pragprog.com/titles/shcloj3/programming-clojure-third-edition/
     * https://www.manning.com/books/the-joy-of-clojure-second-edition
     * https://pragprog.com/titles/vmclojeco/clojure-applied/
+    * https://practical.li/clojure/testing/unit-testing/
+    * https://clojure.github.io/clojure/clojure.test-api.html
+
 
 ## preface
 * goals of this workshop:
     * introduction into clojure
     * basics about clojure syntax
+    * basics about tests
     * showcase of concurrency capabilities of clojure: ref, atom & agent
     * understanding how software transactional memory works
     * introduction to organizing code with namespaces
@@ -385,3 +389,92 @@ be accessible without first requiring it
             in transaction value: 5             tid: 13
             in transaction value: 6             tid: 14 // retried and succeed
             ```
+
+## testing
+* example
+    ```
+    (deftest public-function-in-namespace-test
+      (testing "A description of the test"
+        (is (= 1 (public-function arg)))))
+    ```
+* deftest
+    * is a collection of assertions, with or without testing expressions
+    * can be called like any other function
+        * can be grouped and composed
+            ```
+            (deftest addition
+              (is (= 4 (+ 2 2)))
+              (is (= 7 (+ 3 4))))
+
+            (deftest subtraction
+              (is (= 1 (- 4 3)))
+              (is (= 3 (- 7 4))))
+
+            (deftest arithmetic
+              (addition)
+              (subtraction))
+            ```
+    * naming convention: name of the function it is testing with -test as a postfix
+* testing
+    * is a macro to group multiple assertions together
+    * provides a string in which to describe the context the assertions are testing
+* "is" takes an optional second argument, a string describing the assertion
+    * (is (= 4 (+ 2 2)) "sum should be 4")
+* "are" macro can also be used to define assertions, especially when there would otherwise be multiple
+assertions that only differ by their test data
+    ```
+    (are [x y] (= x y)
+                  2 (+ 1 1)
+                  4 (* 2 2))
+    ```
+* expecting exception
+    * (is (thrown? ArithmeticException (/ 1 0)))
+    * with specific message
+        * (is (thrown-with-msg? ArithmeticException #"Divide by zero" (/ 1 0)))
+* fixtures
+    * allow you to run code before and after tests
+    * scaffold
+        ```
+        (defn my-fixture [test-function]
+           ;; Setup: define bindings, create state, etc.
+
+          (test-function) ;; Run the relevant tests for the fixture (see `use-fixtures`)
+
+           ;; Tear-down: reset state to a known value
+         )
+        ```
+    * example
+        ```
+        (defn database-reset-fixture
+          [test-function]
+          (SUT/create-database)
+          (test-function)
+          (SUT/delete-database))
+        ```
+    * running
+        * run the fixtures once for the namespace
+            * (use-fixtures :once fixture1 fixture2)
+        * run the fixtures for each `deftest** in the namespace
+            * (use-fixtures :each fixture1 fixture2)
+* property based testing
+    * core idea of test.check is that instead of enumerating expected input and output for unit tests,
+    you write properties about your function that should hold true for all input
+    * imports
+        ```
+        (ns my.test
+          (:require [clojure.test.check :as tc]
+                    [clojure.test.check.generators :as gen]
+                    [clojure.test.check.properties :as prop :include-macros true]))
+        ```
+    * example
+        * sorting property: applying sort twice should be equivalent to applying it once
+            ```
+            (def sort-idempotent-prop
+              (prop/for-all [v (gen/vector gen/int)]
+                            (= (sort v) (sort (sort v)))))
+
+            (tc/quick-check 100 sort-idempotent-prop)
+            ```
+    * what happens if our test fails?
+        * test.check will try and find ‘smaller’ inputs that still fail
+        * this process is called shrinking
